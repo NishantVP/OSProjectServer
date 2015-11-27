@@ -1,5 +1,3 @@
-
-
 public class MainThread extends Thread {
 	private Thread t;
 	private String threadName;
@@ -15,7 +13,8 @@ public class MainThread extends Thread {
 	{
 		System.out.println("Running " +  threadName );
 	    try 
-	    {            
+	    {    
+	    	
 	    	
 	    } 
 	    catch (Exception e) 
