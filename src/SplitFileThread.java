@@ -49,7 +49,7 @@ public class SplitFileThread extends Thread {
 	    		
 	    		countMainThreads++;
 	    		String MainThreadID = Integer.toString(countMainThreads);
-	    		portStart = portStart + listMainThreads.size() * 100;
+	    		portStart = portStart + listMainThreads.size() * 2000;
 	    		listMainThreads.add(
 	    				new MainThread(
 	    						"Main_Thread-"+MainThreadID,

@@ -1,6 +1,5 @@
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -15,7 +14,7 @@ public class MainThread extends Thread {
 	private Thread t;
 	private String threadName;
 	private int totalChunks;
-	private String pathOfChunks;
+	private static String pathOfChunks;
 	private int startPortNumber;
 	private static int clientPortNumber;
 	private static String ServerIP;
@@ -24,7 +23,7 @@ public class MainThread extends Thread {
 	private static ServerSocket serverSocket;
 	private static Socket clientSocket;
 	
-	private static Socket clientSocket2;
+
 	// Constructor
 	MainThread(String name, int count, String path, int port)
 	{
@@ -153,6 +152,9 @@ public class MainThread extends Thread {
 					
 					pwrite.println(sendMessage);             
 					pwrite.flush();
+					
+					new ServerToClientThread("S2C",pathOfChunks,S2CPort);
+					new ClientToServerThread("C2S",C2SPort);
 					
 		           
 		        } catch (IOException ex) {
