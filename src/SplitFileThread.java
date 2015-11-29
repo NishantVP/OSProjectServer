@@ -6,25 +6,31 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.util.ArrayList;
 
 import javax.swing.JFileChooser;
 
 public class SplitFileThread extends Thread {
 	private Thread t;
 	private String threadName;
-	   
+	private static String chunkPath;
+	private static int totalChunks;
+	private static int countMainThreads = 0;
+	private static ArrayList<MainThread> listMainThreads = new ArrayList<MainThread>();
+	private static int portStart = 10000;
+	
+	
 	// Constructor
 	SplitFileThread(String name)
 	{
 		this.threadName = name;
-		System.out.println("Creating " +  threadName );
+		System.out.println("--Creating " +  threadName );
 	}
 	
 	public void run() 
 	{
 		File selectedFile;
-		System.out.println("Running " +  threadName );
+		System.out.println("--Running " +  threadName );
 	    try 
 	    {
 	    	//Open UI for file chooser
@@ -37,10 +43,21 @@ public class SplitFileThread extends Thread {
 	    		selectedFile = fileChooser.getSelectedFile();
 	    		System.out.println("Selected file: " + selectedFile.getAbsolutePath());
 	    		
-	    		int count = countLines(selectedFile);
-	    		System.out.println("Number of Lines " +  count );
+	    		totalChunks = splitFile(selectedFile);
+	    		System.out.println("Total " +  totalChunks +" chunks created at "
+	    				+chunkPath );
 	    		
-	    		
+	    		countMainThreads++;
+	    		String MainThreadID = Integer.toString(countMainThreads);
+	    		portStart = portStart + listMainThreads.size() * 100;
+	    		listMainThreads.add(
+	    				new MainThread(
+	    						"Main_Thread-"+MainThreadID,
+	    						totalChunks,
+	    						chunkPath,
+	    						portStart
+	    						));
+	    		listMainThreads.get(listMainThreads.size()-1).start();
 	    	}
 	    	
 	    } 
@@ -50,13 +67,13 @@ public class SplitFileThread extends Thread {
 	    }
 	    
 	   
-	    System.out.println("Thread " +  threadName + " exiting.");
+	    System.out.println("--Exiting " +  threadName);
 	}
 	
 	@Override
 	public void start ()
 	{
-		System.out.println("Starting " +  threadName );
+		System.out.println("--Starting " +  threadName );
 	    if (t == null)
 	    {
 	    	t = new Thread (this, threadName);
@@ -64,9 +81,10 @@ public class SplitFileThread extends Thread {
 	     }
 	}
 	
-	private static int countLines(File file){
+	private static int splitFile(File file){
 		int count = 0;
 		String line = null;
+		int chunkNumer = 0;
 		
 		try {
             // FileReader reads text files in the default encoding.
@@ -80,12 +98,11 @@ public class SplitFileThread extends Thread {
             while((line = bufferedReader.readLine()) != null) {
                 //System.out.println(line);
             	count++;
-            	int chunkNumer = count/1000;
+            	chunkNumer = count/1000;
             	String extentionRemoved = file.getName().split("\\.")[0];
-            	String chunkPath = "/home/nishant/Documents/OS Project/chunks"+extentionRemoved+"/";
+            	chunkPath = "/home/nishant/Documents/OS Project/chunks"+extentionRemoved+"/";
             	
             	File theDir = new File(chunkPath);
-
             	// if the directory does not exist, create it
             	if (!theDir.exists()) {
             	    System.out.println("creating new directory: ");
@@ -105,8 +122,6 @@ public class SplitFileThread extends Thread {
             	
             	writeLineToFile(line,chunkPath,chunkNumer);
             	
-       
-            	
             }   
 
             // Always close files.
@@ -125,7 +140,7 @@ public class SplitFileThread extends Thread {
             // ex.printStackTrace();
         }   
 		
-		return count;
+		return chunkNumer;
 	}
 	
 	private static void writeLineToFile(String line, String path, int chunkNumber) {
@@ -159,8 +174,6 @@ public class SplitFileThread extends Thread {
         }
 		
 	}
-	
-	
 	
 	
 }
