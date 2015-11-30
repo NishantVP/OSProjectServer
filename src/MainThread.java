@@ -4,10 +4,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.util.Enumeration;
 
 public class MainThread extends Thread {
@@ -22,6 +26,8 @@ public class MainThread extends Thread {
 	
 	private static ServerSocket serverSocket;
 	private static Socket clientSocket;
+	private static ServerSocketChannel ssc;
+	public static final String GREETING = "Hello I must be going.\r\n";
 	
 
 	// Constructor
@@ -124,51 +130,81 @@ public class MainThread extends Thread {
 	}
 	
 	//Start server
-	  public static void startServer() {
+	  public static void startServer() throws IOException, InterruptedException {
 		  
+		  ByteBuffer buffer = ByteBuffer.wrap(GREETING.getBytes());
+	  
 		  try {
-			  serverSocket = new ServerSocket(ListenPORT);  //Server socket      
-		    } 
-		  catch (IOException e) {
-		       System.out.println("Could not listen on port: " +ListenPORT);
-		    }
-	
-		    System.out.println("Server started. Listening to the port " +ListenPORT);
-	
-		    while (true) {
-		        try {
-		        	System.out.println("waiting");
-		            clientSocket = serverSocket.accept();   //accept the client connection
-		            System.out.println("started");
-	                // sending to client (pwrite object)
-		            OutputStream ostream = clientSocket.getOutputStream(); 
-		            PrintWriter pwrite = new PrintWriter(ostream, true);
-		            
-		            String S2CPort = Integer.toString(clientPortNumber);
-		            String C2SPort = Integer.toString(clientPortNumber + 1);
-		            clientPortNumber = clientPortNumber + 2;
-		            
-		            String sendMessage = "S2C=" +S2CPort +" C2S=" +C2SPort;
-					
-					pwrite.println(sendMessage);             
-					pwrite.flush();
-					
-					new ServerToClientThread("S2C",pathOfChunks,S2CPort);
-					new ClientToServerThread("C2S",C2SPort);
-					
-		           
-		        } catch (IOException ex) {
-		            System.out.println("Problem in message reading");
-		        }
-		        finally {
-		        	 try {
-						clientSocket.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-		        }
-		    }
-	  }
-	
+			  ssc = ServerSocketChannel.open();
+			  ssc.socket().bind(new InetSocketAddress(ListenPORT));
+			  ssc.configureBlocking(false);
+		  } catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		  }
+		  
+		  while (true) {
+		      System.out.println("Waiting for connections");
+
+		      SocketChannel sc = ssc.accept();
+
+		      if (sc == null) {
+		        Thread.sleep(2000);
+		      } 
+		      else {
+		        System.out.println("Incoming connection from: " + sc.socket().getRemoteSocketAddress());
+		        System.out.println("started");
+		        new ClientThread("ClientThread").start();
+		        buffer.rewind();
+		        sc.write(buffer);
+		        sc.close();
+		      }
+		  }
+	  
+		  
+//		  try {
+//			  serverSocket = new ServerSocket(ListenPORT);  //Server socket      
+//		    } 
+//		  catch (IOException e) {
+//		       System.out.println("Could not listen on port: " +ListenPORT);
+//		    }
+//	
+//		    System.out.println("Server started. Listening to the port " +ListenPORT);
+//	
+//		    while (true) {
+//		        try {
+//		        	System.out.println("waiting");
+//		            clientSocket = serverSocket.accept();   //accept the client connection
+//		            System.out.println("started");
+//	                // sending to client (pwrite object)
+//		            OutputStream ostream = clientSocket.getOutputStream(); 
+//		            PrintWriter pwrite = new PrintWriter(ostream, true);
+//		            
+//		            String S2CPort = Integer.toString(clientPortNumber);
+//		            String C2SPort = Integer.toString(clientPortNumber + 1);
+//		            clientPortNumber = clientPortNumber + 2;
+//		            
+//		            String sendMessage = "S2C=" +S2CPort +" C2S=" +C2SPort;
+//					
+//					pwrite.println(sendMessage);             
+//					pwrite.flush();
+//					
+//					//new ServerToClientThread("S2C",pathOfChunks,S2CPort);
+//					//new ClientToServerThread("C2S",C2SPort);
+//					new ClientThread("ClientThread");
+//					
+//		           
+//		        } catch (IOException ex) {
+//		            System.out.println("Problem in message reading");
+//		        }
+//		        finally {
+//		        	 try {
+//						clientSocket.close();
+//					} catch (IOException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//		        }
+//		    }
+		}
 }
