@@ -94,11 +94,11 @@ public class SplitFileThread extends Thread {
             // Always wrap FileReader in BufferedReader.
             BufferedReader bufferedReader = 
                 new BufferedReader(fileReader);
-
+            String chunkfileContent = "";
             while((line = bufferedReader.readLine()) != null) {
-                //System.out.println(line);
             	count++;
-            	chunkNumer = count/1000;
+                //System.out.println(line);
+            	chunkNumer = count/10;
             	String extentionRemoved = file.getName().split("\\.")[0];
             	chunkPath = "/home/nishant/Documents/OS Project/chunks"+extentionRemoved+"/";
             	
@@ -119,11 +119,17 @@ public class SplitFileThread extends Thread {
             	        System.out.println("DIR created");  
             	    }
             	}
-            	
-            	writeLineToFile(line,chunkPath,chunkNumer);
+            	//System.out.println("Line: "+line);
+            	chunkfileContent = chunkfileContent +"\n"+ line;
+            	//System.out.println("chunkfileContent: "+chunkfileContent);
+            	if(count%10 == 0) {
+            		
+            		writeLineToFile(chunkfileContent,chunkPath,chunkNumer);
+            		chunkfileContent = "";
+            	}
             	
             }   
-
+            writeLineToFile(chunkfileContent,chunkPath,chunkNumer);
             // Always close files.
             bufferedReader.close();         
         }
@@ -152,7 +158,7 @@ public class SplitFileThread extends Thread {
 		try {
             // Assume default encoding.
             FileWriter fileWriter =
-                new FileWriter(file,true);
+                new FileWriter(file);
 
             // Always wrap FileWriter in BufferedWriter.
             BufferedWriter bufferedWriter =

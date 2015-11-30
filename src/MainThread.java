@@ -29,6 +29,8 @@ public class MainThread extends Thread {
 	private static ServerSocketChannel ssc;
 	public static final String GREETING = "Hello I must be going.\r\n";
 	
+	private static int chunkNumeber = 0;
+	
 
 	// Constructor
 	MainThread(String name, int count, String path, int port)
@@ -154,7 +156,10 @@ public class MainThread extends Thread {
 		      else {
 		        System.out.println("Incoming connection from: " + sc.socket().getRemoteSocketAddress());
 		        System.out.println("started");
-		        new ClientThread("ClientThread").start();
+		        
+		        new ClientThread("ClientThread",pathOfChunks,clientPortNumber,chunkNumeber).start();
+		        clientPortNumber++;
+		        chunkNumeber++;
 		        buffer.rewind();
 		        sc.write(buffer);
 		        sc.close();
