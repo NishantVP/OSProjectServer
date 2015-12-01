@@ -98,7 +98,7 @@ public class SplitFileThread extends Thread {
             while((line = bufferedReader.readLine()) != null) {
             	count++;
                 //System.out.println(line);
-            	chunkNumer = count/10;
+            	chunkNumer = count/20;
             	String extentionRemoved = file.getName().split("\\.")[0];
             	chunkPath = "/home/nishant/Documents/OS Project/chunks"+extentionRemoved+"/";
             	
@@ -122,7 +122,7 @@ public class SplitFileThread extends Thread {
             	//System.out.println("Line: "+line);
             	chunkfileContent = chunkfileContent +"\n"+ line;
             	//System.out.println("chunkfileContent: "+chunkfileContent);
-            	if(count%10 == 0) {
+            	if(count%20 == 0) {
             		
             		writeLineToFile(chunkfileContent,chunkPath,chunkNumer);
             		chunkfileContent = "";

@@ -17,17 +17,19 @@ public class ClientThread  extends Thread {
 	
 	private static ServerSocket serverSocket;
 	private static Socket clientSocket;
+	private static TotalCharacterCount Finalcount;
 	
 	
 	
 	// Constructor
-	ClientThread(String name, String path, int port, int count)
+	ClientThread(String name, String path, int port, int count, TotalCharacterCount obj)
 	{
 		System.out.println("--Creating " +  threadName );
 		this.threadName = name;
 		this.chunkPath = path;
 		this.port = port;
 		this.fileName = path+ Integer.toString(count)+".txt";
+		this.Finalcount = obj;
 		System.out.println("Port Assigned - " +port );
 		System.out.println("file being sent - " +fileName); 
 		
@@ -123,7 +125,9 @@ public class ClientThread  extends Thread {
 					  {
 					    if((receiveMessage = receiveRead.readLine()) != null)  
 					    {
-					       System.out.println(receiveMessage);         
+					       System.out.println("Current Count: " +receiveMessage);  
+					       long countInThisFile = processReceivedResult(receiveMessage);
+					       System.out.println("Total Count so far: " +countInThisFile);
 					    }         
 					   
 					  }               
@@ -142,6 +146,15 @@ public class ClientThread  extends Thread {
 		        }
 		    }
 	  }
+	  
+	  synchronized static long processReceivedResult(String receiveMessage) {
+		// TODO Auto-generated method stub
+
+		
+		Finalcount.FinalCount =   Finalcount.FinalCount + Integer.parseInt(receiveMessage);	
+		
+		return Finalcount.FinalCount;
+		}
 	
 	
 	

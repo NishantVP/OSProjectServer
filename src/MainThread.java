@@ -29,7 +29,9 @@ public class MainThread extends Thread {
 	private static ServerSocketChannel ssc;
 	public static final String GREETING = "Hello I must be going.\r\n";
 	
-	private static int chunkNumeber = 0;
+	private static int chunkNumeber = 1;
+	
+	private static TotalCharacterCount GlobalCount;
 	
 
 	// Constructor
@@ -39,6 +41,7 @@ public class MainThread extends Thread {
 		this.totalChunks = count;
 		this.pathOfChunks = path;
 		this.startPortNumber = port;
+		GlobalCount = new TotalCharacterCount();
 		System.out.println("--Creating " +  threadName );
 		System.out.println(threadName +" will handle "+totalChunks +" chunks at " +pathOfChunks);
 	}
@@ -146,7 +149,7 @@ public class MainThread extends Thread {
 		  }
 		  
 		  while (true) {
-		      System.out.println("Waiting for connections");
+		      System.out.println("Waiting for New mobile");
 
 		      SocketChannel sc = ssc.accept();
 
@@ -155,13 +158,24 @@ public class MainThread extends Thread {
 		      } 
 		      else {
 		        System.out.println("Incoming connection from: " + sc.socket().getRemoteSocketAddress());
-		        System.out.println("started");
 		        
-		        new ClientThread("ClientThread",pathOfChunks,clientPortNumber,chunkNumeber).start();
+		        String PortNumberToSend = Integer.toString(clientPortNumber);
+		        buffer = ByteBuffer.wrap(PortNumberToSend.getBytes());
+		        
+		        new ClientThread("ClientThread",pathOfChunks,clientPortNumber,chunkNumeber,GlobalCount).start();
+		        System.out.println("started");
 		        clientPortNumber++;
 		        chunkNumeber++;
+		        
+		        //System.out.println("Outgoing Buffer " +buffer);
 		        buffer.rewind();
-		        sc.write(buffer);
+		        //System.out.println("Outgoing Buffer " +buffer);
+		        //sc.write(buffer);
+		        while(buffer.hasRemaining()) {
+		            sc.write(buffer);
+		        	System.out.println("Outgoing Buffer " +buffer);
+		        }
+		        
 		        sc.close();
 		      }
 		  }
