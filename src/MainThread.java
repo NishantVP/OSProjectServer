@@ -147,12 +147,13 @@ public class MainThread extends Thread {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		  }
+		  int chunkNumber2 = 1;
 		  
 		  while (true) {
 		      System.out.println("Waiting for New mobile");
 
 		      SocketChannel sc = ssc.accept();
-
+		      
 		      if (sc == null) {
 		        Thread.sleep(2000);
 		      } 
@@ -162,10 +163,11 @@ public class MainThread extends Thread {
 		        String PortNumberToSend = Integer.toString(clientPortNumber);
 		        buffer = ByteBuffer.wrap(PortNumberToSend.getBytes());
 		        
-		        new ClientThread("ClientThread",pathOfChunks,clientPortNumber,chunkNumeber,GlobalCount).start();
+		        new ClientThread("ClientThread",pathOfChunks,clientPortNumber,chunkNumber2,GlobalCount).start();
 		        System.out.println("started");
 		        clientPortNumber++;
 		        chunkNumeber++;
+		        chunkNumber2++;
 		        
 		        //System.out.println("Outgoing Buffer " +buffer);
 		        buffer.rewind();

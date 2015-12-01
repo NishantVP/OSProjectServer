@@ -13,7 +13,7 @@ public class ClientThread  extends Thread {
 	private String threadName;
 	private String chunkPath;
 	private static int port;
-	private static String fileName;
+	private String fileName;
 	
 	private static ServerSocket serverSocket;
 	private static Socket clientSocket;
@@ -41,7 +41,7 @@ public class ClientThread  extends Thread {
 	    try 
 	    {   
 	    	//Write your code for this thread here
-	    	startServer();
+	    	startServer(fileName);
 	    	
 	    	
 	    } 
@@ -67,7 +67,7 @@ public class ClientThread  extends Thread {
 	
 	
 	//Start server
-	  public static void startServer()
+	  public static void startServer(String Name)
 	  {
 		  
 		  try {
@@ -102,14 +102,14 @@ public class ClientThread  extends Thread {
 					  
 					  // FileReader reads text files in the default encoding.
 			            FileReader fileReader = 
-			                new FileReader(fileName);
+			                new FileReader(Name);
 
 			            // Always wrap FileReader in BufferedReader.
 			            BufferedReader bufferedReader = 
 			                new BufferedReader(fileReader);
 			            
 			            String line3 = "---fileSendingFinishedByServer---";
-			            System.out.println("file being sent - " +fileName); 
+			            System.out.println("file being sent - " +Name); 
 			            while((line2 = bufferedReader.readLine()) != null) {
 						  //line3 = line3 + line2;
 						  pwrite.println(line2);             
